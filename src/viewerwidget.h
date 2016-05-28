@@ -10,6 +10,8 @@
 
 class VIEWERWIDGET_COMMON_DLLSPEC ViewerWidget : public QScrollArea
 {
+    Q_OBJECT
+
 public:
     ViewerWidget(QWidget *parent = 0);
     ~ViewerWidget();
@@ -25,6 +27,9 @@ public:
     void scaleImage(double factor);
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
+signals:
+    void itemChanged(QModelIndex index);
+
 public slots:
     void showPrev();
     void showNext();
@@ -34,9 +39,6 @@ public slots:
     void zoomOut();
     void zoomToWindow();
     void deleteCurentItem();
-
-signals:
-    void itemChanged(QModelIndex index);
 
 protected:
     void resizeEvent(QResizeEvent *event);

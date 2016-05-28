@@ -109,7 +109,6 @@ void ViewerWidget::setIndex(QModelIndex index, int pathRole)
     if(this->itemSelectionModel) {
         this->itemSelectionModel->select(selection, QItemSelectionModel::ClearAndSelect);
     }
-    //emit this->itemChanged(index);
     return;
 }
 
@@ -128,6 +127,7 @@ void ViewerWidget::show()
         this->imageLabel->setPixmap(QPixmap::fromImage(image));
         this->scaleFactor = 1.0;
         this->imageLabel->adjustSize();
+        emit this->itemChanged(this->index);
     }
     return;
 }
