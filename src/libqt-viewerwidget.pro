@@ -7,7 +7,7 @@
 QT       += core gui widgets sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = searchwidget
+TARGET = libqt-viewerwidget
 TEMPLATE = lib
 
 
