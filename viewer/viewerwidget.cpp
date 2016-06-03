@@ -28,6 +28,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) : QScrollArea(parent)
     this->itemSelectionModel = NULL;
     this->scaleMode = this->SCALEMODE_FIT_TO_WINDOW;
     this->scaleFactor = 1.;
+    //this->showDefault();
 }
 
 /**
@@ -60,6 +61,7 @@ void ViewerWidget::setModel(QAbstractItemModel *model)
     if(this->itemModel != NULL)
         delete this->itemModel;
     this->itemModel = model;
+    this->setIndex(this->itemModel->index(0,0),0);
     if(this->itemSelectionModel != NULL) {
         this->itemSelectionModel = NULL;
     }
@@ -132,6 +134,21 @@ void ViewerWidget::show()
     return;
 }
 
+void ViewerWidget::showDefault()
+{
+    QString filePath = "../resourses/1.png";
+    QImage image(filePath);
+    if (image.isNull()) {
+        qDebug() << tr("Cannot load %1.").arg(filePath);
+        return;
+    }
+    this->imageLabel->setPixmap(QPixmap::fromImage(image));
+    this->scaleFactor = 1.0;
+    this->imageLabel->adjustSize();
+    emit this->itemChanged(this->index);
+    return;
+}
+
 /**
  * @brief Sets automatic adjustment size mode
  */
@@ -156,15 +173,15 @@ void ViewerWidget::autoFit()
  */
 void ViewerWidget::scaleImage(double factor)
 {
-    Q_ASSERT(imageLabel->pixmap());
-    this->scaleFactor *= factor;
-    imageLabel->resize(this->scaleFactor * imageLabel->pixmap()->size());
+        Q_ASSERT(imageLabel->pixmap());
+        this->scaleFactor *= factor;
+        imageLabel->resize(this->scaleFactor * imageLabel->pixmap()->size());
 
-    this->adjustScrollBar(this->horizontalScrollBar(), factor);
-    this->adjustScrollBar(this->verticalScrollBar(), factor);
+        this->adjustScrollBar(this->horizontalScrollBar(), factor);
+        this->adjustScrollBar(this->verticalScrollBar(), factor);
 
-    //zoomInAct->setEnabled(scaleFactor < 3.0);
-    //zoomOutAct->setEnabled(scaleFactor > 0.333);
+        //zoomInAct->setEnabled(scaleFactor < 3.0);
+        //zoomOutAct->setEnabled(scaleFactor > 0.333);
 }
 
 /**
