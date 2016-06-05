@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "../viewer/viewerwidget.h"
 #include <QStringListModel>
+#include <QPushButton>
 
 namespace Ui {
 class MainWindow;
@@ -22,6 +23,7 @@ private:
     ViewerWidget* viewer;
     QStringListModel *model;
 
+    QPushButton* createPushButton(QString url);
 };
 
 #endif // MAINWINDOW_H

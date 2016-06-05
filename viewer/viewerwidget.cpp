@@ -61,7 +61,7 @@ void ViewerWidget::setModel(QAbstractItemModel *model)
     if(this->itemModel != NULL)
         delete this->itemModel;
     this->itemModel = model;
-    this->setIndex(this->itemModel->index(0,0),0);
+    this->setIndex(this->itemModel->index(0,0), this->modelPathRole);
     if(this->itemSelectionModel != NULL) {
         this->itemSelectionModel = NULL;
     }
@@ -227,7 +227,10 @@ void ViewerWidget::showNext()
 {
     QModelIndex nextIndex;
     int row = this->index.row();
-    while(this->index.internalId() != nextIndex.internalId()) {
+    int a = this->index.internalId();
+    int b = nextIndex.internalId();
+//    while(this->index.internalId() != nextIndex.internalId()) {
+    while(1) {
         if(row != this->itemModel->rowCount() - 1) {
             row++;
         } else {
@@ -238,6 +241,7 @@ void ViewerWidget::showNext()
             QString path = nextIndex.data(this->modelPathRole).toString();
             if(this->isFileTypeSuported(path)) {
                 this->setIndex(nextIndex, this->modelPathRole);
+
                 break;
             }
         }
