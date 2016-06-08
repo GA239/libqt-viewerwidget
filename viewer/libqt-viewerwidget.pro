@@ -17,3 +17,5 @@ SOURCES += \
 HEADERS  += \ 
     viewerwidget.h \
     viewerwidgetheaders.h
+
+DISTFILES +=

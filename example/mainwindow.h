@@ -4,7 +4,8 @@
 #include <QMainWindow>
 #include "../viewer/viewerwidget.h"
 #include <QStringListModel>
-#include <QPushButton>
+#include <QFileDialog>
+
 
 namespace Ui {
 class MainWindow;
@@ -17,13 +18,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
+public slots:
+    void open();
 private:
     Ui::MainWindow *ui;
     ViewerWidget* viewer;
     QStringListModel *model;
 
-    QPushButton* createPushButton(QString url);
 };
 
 #endif // MAINWINDOW_H

@@ -2,6 +2,12 @@
 #include "ui_mainwindow.h"
 #include <QVBoxLayout>
 #include <QListView>
+#include <qsplitter.h>
+
+#include <QToolBar>
+#include <QIcon>
+#include <QAction>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -14,36 +20,27 @@ MainWindow::MainWindow(QWidget *parent) :
     this->model->setStringList(QStringList() << "../resourses/1.png" << "../resourses/2.png" << "../resourses/3.png");
 
     this->viewer =  new ViewerWidget();
-    this->viewer->setModel(this->model);
+    //this->viewer->setModel(this->model);
 
-    QListView *listView = new QListView();
-    listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    listView->setModel(this->model);
 
-    this->viewer->setSelectionModel(listView->selectionModel());
+    QAction *open = this->ui->mainToolBar->addAction(QIcon("../resourses/add.png"), "New File");
+    this->ui->mainToolBar->addSeparator();
+    QAction *zoomIn = this->ui->mainToolBar->addAction(QIcon("../resourses/zoomIn.png"), "Zoom in File");
+    QAction *zoomOut = this->ui->mainToolBar->addAction(QIcon("../resourses/zoomOut.png"), "Zoom out File");
+    QAction *full = this->ui->mainToolBar->addAction(QIcon("../resourses/full.png"), "Full screen");
+    this->ui->mainToolBar->addSeparator();
+    QAction *previous = this->ui->mainToolBar->addAction(QIcon("../resourses/larrow.png"), "Previous");
+    QAction *next = this->ui->mainToolBar->addAction(QIcon("../resourses/rarrow.png"), "Next");
 
-    QWidget *segBtn = new QWidget(this);
-    segBtn->setLayout(new QHBoxLayout);
-    segBtn->layout()->setSpacing(0);
-    segBtn->layout()->setMargin(0);
-
-    QPushButton *btnUp = this->createPushButton("../resourses/rarrow.png");
-    QPushButton *btnZoomIn = this->createPushButton("../resourses/zoomIn.png");
-    QPushButton *btnZoomOut = this->createPushButton("../resourses/zoomOut.png");
-    QPushButton *btnDown = this->createPushButton("../resourses/larrow.png");
-
-    segBtn->layout()->addWidget(btnDown);
-    segBtn->layout()->addWidget(btnZoomIn);
-    segBtn->layout()->addWidget(btnZoomOut);
-    segBtn->layout()->addWidget(btnUp);
-    connect(btnUp,SIGNAL(clicked()), this->viewer, SLOT(showNext()));
-    connect(btnDown,SIGNAL(clicked()), this->viewer, SLOT(showPrev()));
-    connect(btnZoomIn,SIGNAL(clicked()), this->viewer, SLOT(zoomIn()));
-    connect(btnZoomOut,SIGNAL(clicked()), this->viewer, SLOT(zoomOut()));
+    connect(open, SIGNAL(triggered()), this, SLOT(open()));
+    connect(zoomIn, SIGNAL(triggered()), this->viewer, SLOT(zoomIn()));
+    connect(zoomOut, SIGNAL(triggered()), this->viewer, SLOT(zoomOut()));
+    connect(full, SIGNAL(triggered()), this->viewer, SLOT(showInFullScreen()));
+    connect(previous, SIGNAL(triggered()), this->viewer, SLOT(showPrev()));
+    connect(next, SIGNAL(triggered()), this->viewer, SLOT(showNext()));
 
     QVBoxLayout *verLayout = new QVBoxLayout;
     this->ui->centralWidget->setLayout(verLayout);
-    this->ui->centralWidget->layout()->addWidget(segBtn);
     this->ui->centralWidget->layout()->addWidget(this->viewer);
 }
 
@@ -52,12 +49,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QPushButton *MainWindow::createPushButton(QString url)
+void MainWindow::open()
 {
-    QPushButton *btn = new QPushButton;
-    btn->setFixedSize(42, 42);
-    btn->setStyleSheet( " background-color: white; " );
-    btn->setIcon(QIcon(url));
-    btn->setIconSize(QSize(35,35));
-    return btn;
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                QString::fromUtf8("Открыть файл"),
+                                QDir::currentPath(),
+                                "Images (*.png *.xpm *.jpg);;All files (*.*)");
 }
+

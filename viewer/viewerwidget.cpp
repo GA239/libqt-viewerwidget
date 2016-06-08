@@ -28,7 +28,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) : QScrollArea(parent)
     this->itemSelectionModel = NULL;
     this->scaleMode = this->SCALEMODE_FIT_TO_WINDOW;
     this->scaleFactor = 1.;
-    //this->showDefault();
+    this->modelPathRole = Qt::DisplayRole;
+    this->show();
 }
 
 /**
@@ -61,10 +62,10 @@ void ViewerWidget::setModel(QAbstractItemModel *model)
     if(this->itemModel != NULL)
         delete this->itemModel;
     this->itemModel = model;
-    this->setIndex(this->itemModel->index(0,0), this->modelPathRole);
     if(this->itemSelectionModel != NULL) {
         this->itemSelectionModel = NULL;
     }
+    this->setIndex(this->itemModel->index(0, 0, QModelIndex()), this->modelPathRole);
     return;
 }
 
@@ -124,6 +125,7 @@ void ViewerWidget::show()
         QImage image(filePath);
         if (image.isNull()) {
             qDebug() << tr("Cannot load %1.").arg(filePath);
+            this->showDefault();
             return;
         }
         this->imageLabel->setPixmap(QPixmap::fromImage(image));
@@ -131,21 +133,18 @@ void ViewerWidget::show()
         this->imageLabel->adjustSize();
         emit this->itemChanged(this->index);
     }
+    else{
+        this->showDefault();
+    }
     return;
 }
 
 void ViewerWidget::showDefault()
 {
-    QString filePath = "../resourses/1.png";
-    QImage image(filePath);
-    if (image.isNull()) {
-        qDebug() << tr("Cannot load %1.").arg(filePath);
-        return;
-    }
+    QImage image("../resourses/No.png");
     this->imageLabel->setPixmap(QPixmap::fromImage(image));
     this->scaleFactor = 1.0;
     this->imageLabel->adjustSize();
-    emit this->itemChanged(this->index);
     return;
 }
 
@@ -200,20 +199,23 @@ void ViewerWidget::adjustScrollBar(QScrollBar *scrollBar, double factor)
  */
 void ViewerWidget::showPrev()
 {
-    QModelIndex prevIndex;
-    int row = this->index.row();
-    while(this->index.internalId() != prevIndex.internalId()) {
-        if(row != 0) {
-            row--;
-        } else {
-            row = this->itemModel->rowCount() - 1;
-        }
-        prevIndex = this->itemModel->index(row, 0, QModelIndex());
-        if(prevIndex.isValid()) {
-            QString path = prevIndex.data(this->modelPathRole).toString();
-            if(this->isFileTypeSuported(path)) {
-                this->setIndex(prevIndex, this->modelPathRole);
-                break;
+    if(this->index.isValid()) {
+        QModelIndex prevIndex;
+        int row = this->index.row();
+        //while(this->index.internalId() != prevIndex.internalId()) {
+        while(1){
+            if(row != 0) {
+                row--;
+            } else {
+                row = this->itemModel->rowCount() - 1;
+            }
+            prevIndex = this->itemModel->index(row, 0, QModelIndex());
+            if(prevIndex.isValid()) {
+                QString path = prevIndex.data(this->modelPathRole).toString();
+                if(this->isFileTypeSuported(path)) {
+                    this->setIndex(prevIndex, this->modelPathRole);
+                    break;
+                }
             }
         }
     }
@@ -225,24 +227,26 @@ void ViewerWidget::showPrev()
  */
 void ViewerWidget::showNext()
 {
-    QModelIndex nextIndex;
-    int row = this->index.row();
-    int a = this->index.internalId();
-    int b = nextIndex.internalId();
-//    while(this->index.internalId() != nextIndex.internalId()) {
-    while(1) {
-        if(row != this->itemModel->rowCount() - 1) {
-            row++;
-        } else {
-            row = 0;
-        }
-        nextIndex = this->itemModel->index(row, 0, QModelIndex());
-        if(nextIndex.isValid()) {
-            QString path = nextIndex.data(this->modelPathRole).toString();
-            if(this->isFileTypeSuported(path)) {
-                this->setIndex(nextIndex, this->modelPathRole);
+    if(this->index.isValid()) {
+        QModelIndex nextIndex;
+        int row = this->index.row();
+        int a = this->index.internalId();
+        int b = nextIndex.internalId();
+        //  while(this->index.internalId() != nextIndex.internalId()) {
+        while(1) {
+            if(row != this->itemModel->rowCount() - 1) {
+                row++;
+            } else {
+                row = 0;
+            }
+            nextIndex = this->itemModel->index(row, 0, QModelIndex());
+            if(nextIndex.isValid()) {
+                QString path = nextIndex.data(this->modelPathRole).toString();
+                if(this->isFileTypeSuported(path)) {
+                    this->setIndex(nextIndex, this->modelPathRole);
 
-                break;
+                    break;
+                }
             }
         }
     }
