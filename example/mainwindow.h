@@ -20,6 +20,8 @@ public:
     ~MainWindow();
 public slots:
     void open();
+    void deleteCurrentItem();
+
 private:
     Ui::MainWindow *ui;
     ViewerWidget* viewer;

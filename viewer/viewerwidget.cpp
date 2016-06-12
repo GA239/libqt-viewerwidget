@@ -194,6 +194,21 @@ void ViewerWidget::adjustScrollBar(QScrollBar *scrollBar, double factor)
                             + ((factor - 1) * scrollBar->pageStep()/2)));
 }
 
+bool ViewerWidget::isModelAvailable()
+{
+    if(this->itemModel != NULL)
+        return true;
+    return false;
+}
+
+bool ViewerWidget::addItem(QString url)
+{
+    this->itemModel->insertRows(this->itemModel->rowCount(), 1, QModelIndex());
+    QModelIndex idx = this->itemModel->index(this->itemModel->rowCount() - 1, 0, QModelIndex());
+    this->setIndex(idx, this->modelPathRole);
+    return this->itemModel->setData(idx, url);
+}
+
 /**
  * @brief Shows preview document
  */

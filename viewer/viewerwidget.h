@@ -27,6 +27,8 @@ public:
     void autoFit(void);
     void scaleImage(double factor);
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
+    bool isModelAvailable();
+    bool addItem(QString url);
 
 signals:
     void itemChanged(QModelIndex index);
