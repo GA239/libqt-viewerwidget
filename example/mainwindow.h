@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "../viewer/viewerwidget.h"
+#include "../src/viewerwidget.h"
 #include <QStringListModel>
 #include <QFileDialog>
 

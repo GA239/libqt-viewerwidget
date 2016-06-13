@@ -364,8 +364,7 @@ void ViewerWidget::keyPressEvent(QKeyEvent *event)
         case Qt::Key_PageDown: {
             this->showPrev();
         } break;
-        default:
-            break;
+        default: break;
     }
 }
 
