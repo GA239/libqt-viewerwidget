@@ -20,11 +20,11 @@ HEADERS  += mainwindow.h
 FORMS    += mainwindow.ui
 
 CONFIG(debug, debug|release) {
-    LIBS+= -L../src/debug -llibqt-viewerwidget
+    LIBS+= -L../build-src-desktop/debug -llibqt-viewerwidget
 }
 
 CONFIG(release, debug|release) {
-    LIBS+= -L../src/release -llibqt-viewerwidget
+    LIBS+= -L../build-src-desktop/release -llibqt-viewerwidget
 }
 
 DISTFILES +=

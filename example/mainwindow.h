@@ -19,14 +19,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 public slots:
-    void open();
+    void openNewItem();
     void deleteCurrentItem();
 
 private:
     Ui::MainWindow *ui;
     ViewerWidget* viewer;
     QStringListModel *model;
-
 };
 
 #endif // MAINWINDOW_H

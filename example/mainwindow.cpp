@@ -24,27 +24,26 @@ MainWindow::MainWindow(QWidget *parent) :
     this->viewer =  new ViewerWidget();
     this->viewer->setModel(this->model);
 
-
     QAction *open = this->ui->mainToolBar->addAction(QIcon("../resourses/add.png"), "New File");
-    QAction *dell = this->ui->mainToolBar->addAction(QIcon("../resourses/delete.png"), "delete");
+    QAction *remove = this->ui->mainToolBar->addAction(QIcon("../resourses/delete.png"), "delete");
     this->ui->mainToolBar->addSeparator();
     QAction *zoomIn = this->ui->mainToolBar->addAction(QIcon("../resourses/zoomIn.png"), "Zoom in File");
     QAction *zoomOut = this->ui->mainToolBar->addAction(QIcon("../resourses/zoomOut.png"), "Zoom out File");
-    QAction *full = this->ui->mainToolBar->addAction(QIcon("../resourses/full.png"), "Full screen");
+    QAction *fullScreen = this->ui->mainToolBar->addAction(QIcon("../resourses/full.png"), "Full screen");
     this->ui->mainToolBar->addSeparator();
     QAction *previous = this->ui->mainToolBar->addAction(QIcon("../resourses/larrow.png"), "Previous");
     QAction *next = this->ui->mainToolBar->addAction(QIcon("../resourses/rarrow.png"), "Next");
 
-    connect(open, SIGNAL(triggered()), this, SLOT(open()));
-    connect(dell, SIGNAL(triggered()), this, SLOT(deleteCurrentItem()));
+    connect(open, SIGNAL(triggered()), this, SLOT(openNewItem()));
+    connect(remove, SIGNAL(triggered()), this, SLOT(deleteCurrentItem()));
     connect(zoomIn, SIGNAL(triggered()), this->viewer, SLOT(zoomIn()));
     connect(zoomOut, SIGNAL(triggered()), this->viewer, SLOT(zoomOut()));
-    connect(full, SIGNAL(triggered()), this->viewer, SLOT(showInFullScreen()));
+    connect(fullScreen, SIGNAL(triggered()), this->viewer, SLOT(showInFullScreen()));
     connect(previous, SIGNAL(triggered()), this->viewer, SLOT(showPrev()));
     connect(next, SIGNAL(triggered()), this->viewer, SLOT(showNext()));
 
-    QVBoxLayout *verLayout = new QVBoxLayout;
-    this->ui->centralWidget->setLayout(verLayout);
+    QVBoxLayout *verticalLayout = new QVBoxLayout;
+    this->ui->centralWidget->setLayout(verticalLayout);
     this->ui->centralWidget->layout()->addWidget(this->viewer);
 }
 
@@ -52,44 +51,34 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-void MainWindow::open()
+/**
+ * @brief opens a dialog to add a new image to the model
+ */
+void MainWindow::openNewItem()
 {
-    QString url = QFileDialog::getOpenFileName(this,
-                                QString::fromUtf8("Открыть файл"),
-                                QDir::currentPath(),
-                                "Images (*.png *.xpm *.jpg);;All files (*.*)");
-   if(!url.isEmpty())
-   {
-       if(!this->viewer->addItem(url))
-       {
-           QMessageBox::information(this,QString::fromUtf8("Сообщение"),
-                                         QString::fromUtf8("Ошибка добавления!"));
-       }
-   }
+    QString url = QFileDialog::getOpenFileName(this, tr("Open file"), QDir::currentPath(),
+                                               "Images (*.png *.xpm *.jpg);;All files (*.*)");
+    if (!url.isEmpty()) {
+        if (!this->viewer->addItem(url))
+            QMessageBox::information(this, tr("Warning"),tr("Error adding!"));
+    }
     return;
 }
-
+/**
+ * @brief removes the current image from the model
+ */
 void MainWindow::deleteCurrentItem()
 {
-    if(this->viewer->currentItem().isValid())
-    {
-        QMessageBox msgBox(QMessageBox::Warning,
-                           QString::fromUtf8("Предупреждение"),
-                           QString::fromUtf8("Вы дейсвительно хотите удалить изображение?"),
-                           0, this);
-        msgBox.addButton(QString::fromUtf8("&Да"),QMessageBox::AcceptRole);
-        msgBox.addButton(QString::fromUtf8("&Нет"),QMessageBox::RejectRole);
+    if (this->viewer->currentItem().isValid()) {
+        QMessageBox msgBox(QMessageBox::Warning,tr("Warning"),
+                           tr("Are you really want to delete this file?"),0, this);
+        msgBox.addButton(tr("Yes"),QMessageBox::AcceptRole);
+        msgBox.addButton(tr("No"),QMessageBox::RejectRole);
 
         if (msgBox.exec() == QMessageBox::AcceptRole)
-        {
-         this->viewer->deleteCurentItem();
-        }
-    }
-    else
-    {
-        QMessageBox::information(this,QString::fromUtf8("Сообщение"),
-                                      QString::fromUtf8("Изображение отсутствуют"));
+            this->viewer->deleteCurentItem();
+    } else {
+        QMessageBox::information(this,tr("Warning"), tr("Image not available"));
     }
     return;
 }
