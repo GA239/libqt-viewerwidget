@@ -205,8 +205,12 @@ bool ViewerWidget::addItem(QString url)
 {
     this->itemModel->insertRows(this->itemModel->rowCount(), 1, QModelIndex());
     QModelIndex idx = this->itemModel->index(this->itemModel->rowCount() - 1, 0, QModelIndex());
-    this->setIndex(idx, this->modelPathRole);
-    return this->itemModel->setData(idx, url);
+    if(this->itemModel->setData(idx, url)){
+        this->setIndex(idx, this->modelPathRole);
+        this->show();
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -325,6 +329,10 @@ void ViewerWidget::zoomToWindow()
 void ViewerWidget::deleteCurentItem()
 {
     this->itemModel->removeRow(this->index.row(), QModelIndex());
+    if(this->itemModel->rowCount() != 0)
+        this->showPrev();
+    else
+        this->setIndex(QModelIndex(),this->modelPathRole);
     return;
 }
 

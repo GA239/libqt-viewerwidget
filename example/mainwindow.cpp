@@ -17,7 +17,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle("Viewer Example");
     this->setStyleSheet( " background-color: white; " );
     this->model = new QStringListModel(this);
-    this->model->setStringList(QStringList() << "../resourses/1.png" << "../resourses/2.png" << "../resourses/3.png");
+    this->model->setStringList(QStringList() << "../resourses/1.png"
+                                             << "../resourses/2.png"
+                                             << "../resourses/3.png");
 
     this->viewer =  new ViewerWidget();
     this->viewer->setModel(this->model);
@@ -59,37 +61,35 @@ void MainWindow::open()
                                 "Images (*.png *.xpm *.jpg);;All files (*.*)");
    if(!url.isEmpty())
    {
-     this->viewer->addItem(url);
-     this->viewer->show();
+       if(!this->viewer->addItem(url))
+       {
+           QMessageBox::information(this,QString::fromUtf8("Сообщение"),
+                                         QString::fromUtf8("Ошибка добавления!"));
+       }
    }
     return;
 }
 
 void MainWindow::deleteCurrentItem()
 {
-    if(this->viewer->isModelAvailable())
+    if(this->viewer->currentItem().isValid())
     {
         QMessageBox msgBox(QMessageBox::Warning,
                            QString::fromUtf8("Предупреждение"),
                            QString::fromUtf8("Вы дейсвительно хотите удалить изображение?"),
                            0, this);
-        msgBox.addButton(QString::fromUtf8("&Да"),
-                         QMessageBox::AcceptRole);
-        msgBox.addButton(QString::fromUtf8("&Нет"),
-                         QMessageBox::RejectRole);
+        msgBox.addButton(QString::fromUtf8("&Да"),QMessageBox::AcceptRole);
+        msgBox.addButton(QString::fromUtf8("&Нет"),QMessageBox::RejectRole);
 
         if (msgBox.exec() == QMessageBox::AcceptRole)
         {
          this->viewer->deleteCurentItem();
-         this->viewer->show();
         }
     }
     else
     {
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::information(this,
-                               QString::fromUtf8("Сообщение"),
-                               QString::fromUtf8("Изображения отсутствуют"));
+        QMessageBox::information(this,QString::fromUtf8("Сообщение"),
+                                      QString::fromUtf8("Изображение отсутствуют"));
     }
     return;
 }
