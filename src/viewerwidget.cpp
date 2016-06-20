@@ -28,6 +28,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) : QScrollArea(parent)
     this->itemSelectionModel = NULL;
     this->scaleMode = this->SCALEMODE_FIT_TO_WINDOW;
     this->scaleFactor = 1.;
+    this->modelPathRole = Qt::DisplayRole;
+    this->show();
 }
 
 /**
@@ -63,6 +65,7 @@ void ViewerWidget::setModel(QAbstractItemModel *model)
     if(this->itemSelectionModel != NULL) {
         this->itemSelectionModel = NULL;
     }
+    this->setIndex(this->itemModel->index(0, 0, QModelIndex()), this->modelPathRole);
     return;
 }
 
@@ -122,6 +125,7 @@ void ViewerWidget::show()
         QImage image(filePath);
         if (image.isNull()) {
             qDebug() << tr("Cannot load %1.").arg(filePath);
+            this->showDefault();
             return;
         }
         this->imageLabel->setPixmap(QPixmap::fromImage(image));
@@ -129,6 +133,20 @@ void ViewerWidget::show()
         this->imageLabel->adjustSize();
         emit this->itemChanged(this->index);
     }
+    else{
+        this->showDefault();
+    }
+    return;
+}
+/**
+ * @brief Shows default image
+ */
+void ViewerWidget::showDefault()
+{
+    QImage image("../resourses/No.png");
+    this->imageLabel->setPixmap(QPixmap::fromImage(image));
+    this->scaleFactor = 1.0;
+    this->imageLabel->adjustSize();
     return;
 }
 
@@ -156,15 +174,15 @@ void ViewerWidget::autoFit()
  */
 void ViewerWidget::scaleImage(double factor)
 {
-    Q_ASSERT(imageLabel->pixmap());
-    this->scaleFactor *= factor;
-    imageLabel->resize(this->scaleFactor * imageLabel->pixmap()->size());
+        Q_ASSERT(imageLabel->pixmap());
+        this->scaleFactor *= factor;
+        imageLabel->resize(this->scaleFactor * imageLabel->pixmap()->size());
 
-    this->adjustScrollBar(this->horizontalScrollBar(), factor);
-    this->adjustScrollBar(this->verticalScrollBar(), factor);
+        this->adjustScrollBar(this->horizontalScrollBar(), factor);
+        this->adjustScrollBar(this->verticalScrollBar(), factor);
 
-    //zoomInAct->setEnabled(scaleFactor < 3.0);
-    //zoomOutAct->setEnabled(scaleFactor > 0.333);
+        //zoomInAct->setEnabled(scaleFactor < 3.0);
+        //zoomOutAct->setEnabled(scaleFactor > 0.333);
 }
 
 /**
@@ -177,26 +195,50 @@ void ViewerWidget::adjustScrollBar(QScrollBar *scrollBar, double factor)
     scrollBar->setValue(int(factor * scrollBar->value()
                             + ((factor - 1) * scrollBar->pageStep()/2)));
 }
+/**
+ * @brief returnes validity of the model
+ */
+bool ViewerWidget::isModelAvailable()
+{
+    if(this->itemModel != NULL)
+        return true;
+    return false;
+}
+
+bool ViewerWidget::addItem(QString url)
+{
+    this->itemModel->insertRows(this->itemModel->rowCount(), 1, QModelIndex());
+    QModelIndex idx = this->itemModel->index(this->itemModel->rowCount() - 1, 0, QModelIndex());
+    if(this->itemModel->setData(idx, url)){
+        this->setIndex(idx, this->modelPathRole);
+        this->show();
+        return true;
+    }
+    return false;
+}
 
 /**
  * @brief Shows preview document
  */
 void ViewerWidget::showPrev()
 {
-    QModelIndex prevIndex;
-    int row = this->index.row();
-    while(this->index.internalId() != prevIndex.internalId()) {
-        if(row != 0) {
-            row--;
-        } else {
-            row = this->itemModel->rowCount() - 1;
-        }
-        prevIndex = this->itemModel->index(row, 0, QModelIndex());
-        if(prevIndex.isValid()) {
-            QString path = prevIndex.data(this->modelPathRole).toString();
-            if(this->isFileTypeSuported(path)) {
-                this->setIndex(prevIndex, this->modelPathRole);
-                break;
+    if(this->index.isValid()) {
+        QModelIndex prevIndex;
+        int row = this->index.row();
+        //while(this->index.internalId() != prevIndex.internalId()) {
+        while(1){
+            if(row != 0) {
+                row--;
+            } else {
+                row = this->itemModel->rowCount() - 1;
+            }
+            prevIndex = this->itemModel->index(row, 0, QModelIndex());
+            if(prevIndex.isValid()) {
+                QString path = prevIndex.data(this->modelPathRole).toString();
+                if(this->isFileTypeSuported(path)) {
+                    this->setIndex(prevIndex, this->modelPathRole);
+                    break;
+                }
             }
         }
     }
@@ -208,20 +250,26 @@ void ViewerWidget::showPrev()
  */
 void ViewerWidget::showNext()
 {
-    QModelIndex nextIndex;
-    int row = this->index.row();
-    while(this->index.internalId() != nextIndex.internalId()) {
-        if(row != this->itemModel->rowCount() - 1) {
-            row++;
-        } else {
-            row = 0;
-        }
-        nextIndex = this->itemModel->index(row, 0, QModelIndex());
-        if(nextIndex.isValid()) {
-            QString path = nextIndex.data(this->modelPathRole).toString();
-            if(this->isFileTypeSuported(path)) {
-                this->setIndex(nextIndex, this->modelPathRole);
-                break;
+    if(this->index.isValid()) {
+        QModelIndex nextIndex;
+        int row = this->index.row();
+        int a = this->index.internalId();
+        int b = nextIndex.internalId();
+        //  while(this->index.internalId() != nextIndex.internalId()) {
+        while(1) {
+            if(row != this->itemModel->rowCount() - 1) {
+                row++;
+            } else {
+                row = 0;
+            }
+            nextIndex = this->itemModel->index(row, 0, QModelIndex());
+            if(nextIndex.isValid()) {
+                QString path = nextIndex.data(this->modelPathRole).toString();
+                if(this->isFileTypeSuported(path)) {
+                    this->setIndex(nextIndex, this->modelPathRole);
+
+                    break;
+                }
             }
         }
     }
@@ -285,6 +333,10 @@ void ViewerWidget::zoomToWindow()
 void ViewerWidget::deleteCurentItem()
 {
     this->itemModel->removeRow(this->index.row(), QModelIndex());
+    if(this->itemModel->rowCount() != 0)
+        this->showPrev();
+    else
+        this->setIndex(QModelIndex(),this->modelPathRole);
     return;
 }
 
@@ -316,8 +368,7 @@ void ViewerWidget::keyPressEvent(QKeyEvent *event)
         case Qt::Key_PageDown: {
             this->showPrev();
         } break;
-        default:
-            break;
+        default: break;
     }
 }
 

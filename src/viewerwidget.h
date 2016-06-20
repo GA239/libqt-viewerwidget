@@ -23,9 +23,12 @@ public:
     QModelIndex currentItem(void);
     void setIndex(QModelIndex index, int modelathRole);
     void show(void);
+    void showDefault(void);
     void autoFit(void);
     void scaleImage(double factor);
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
+    bool isModelAvailable();
+    bool addItem(QString url);
 
 signals:
     void itemChanged(QModelIndex index);
@@ -48,6 +51,7 @@ protected:
 
 private:
     QLabel *imageLabel;
+
     QAbstractItemModel *itemModel;
     QItemSelectionModel *itemSelectionModel;
     QModelIndex index;
