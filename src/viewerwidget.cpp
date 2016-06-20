@@ -138,7 +138,9 @@ void ViewerWidget::show()
     }
     return;
 }
-
+/**
+ * @brief Shows default image
+ */
 void ViewerWidget::showDefault()
 {
     QImage image("../resourses/No.png");
@@ -193,7 +195,9 @@ void ViewerWidget::adjustScrollBar(QScrollBar *scrollBar, double factor)
     scrollBar->setValue(int(factor * scrollBar->value()
                             + ((factor - 1) * scrollBar->pageStep()/2)));
 }
-
+/**
+ * @brief returnes validity of the model
+ */
 bool ViewerWidget::isModelAvailable()
 {
     if(this->itemModel != NULL)
